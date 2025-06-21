@@ -100,7 +100,13 @@ Filtre pelo seu time:
 
 ![image](https://github.com/user-attachments/assets/735e5802-3bb7-4cd8-bce8-6682dcc53381)
 
+Seu time é um bom mandante?
 
+![image](https://github.com/user-attachments/assets/f8229b71-5e60-4353-9b41-7b7de46236e2)
+
+Performance específica para cada time do nosso amado Brasileirão:
+
+![image](https://github.com/user-attachments/assets/278fa42c-577e-48b7-a1e7-ac1a37010edb)
 
 
 ---
