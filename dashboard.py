@@ -9,6 +9,15 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- CORES PADRÃO PARA RESULTADO -------------------------------------------
+COLOR_RESULTADO = {
+    'Vitória': 'green',   # verde
+    'Derrota': 'red',     # vermelho
+    'Empate':  'yellow'   # amarelo
+}
+
+
+# --- DICIONÁRIO DE ESCUDOS DOS TIMES ---------------------------------------
 ESCUDOS_TIMES = {
     'Athletico-PR': 'https://logodetimes.com/times/atletico-paranaense/logo-atletico-paranaense-512.png',
     'Atletico-GO': 'https://logodetimes.com/times/atletico-goianiense/logo-atletico-goianiense-com-estrela-512.png',
@@ -183,11 +192,20 @@ if df is not None:
 
     def plotar_pizza(df_plot, title):
         if not df_plot.empty:
-            fig = px.pie(df_plot, names='resultado', values='percentual', title=title, hole=.3)
+            fig = px.pie(
+                df_plot,
+                names='resultado',
+                values='percentual',
+                title=title,
+                hole=.3,
+                color='resultado',            # usa o rótulo como chave
+                color_discrete_map=COLOR_RESULTADO
+            )
             fig.update_traces(textposition='inside', textinfo='percent+label')
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.warning(f"Não há dados suficientes para o gráfico: {title}")
+
     
     # Função para gerar e plotar os dados para cada gráfico de pizza
     def gerar_resumo_e_plotar(df_base, coluna_time, titulo, coluna_plot):
