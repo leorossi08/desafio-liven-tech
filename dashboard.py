@@ -125,8 +125,14 @@ if df is not None:
             'Fora': resultados_fora
         }).fillna(0).astype(int).reindex(['Vitória', 'Empate', 'Derrota'])
         
-        df_plot = df_comparativo.reset_index().melt(id_vars='index', var_name='Condição', value_name='Número de Partidas')
-        df_plot.rename(columns={'index': 'Resultado'}, inplace=True)
+        # ***** INÍCIO DA CORREÇÃO *****
+        # O índice de df_comparativo é nomeado 'resultado'. Usamos .reset_index() para transformá-lo em coluna.
+        df_melted = df_comparativo.reset_index()
+        # A nova coluna se chama 'resultado', então usamos ela como id_vars.
+        df_plot = df_melted.melt(id_vars='resultado', var_name='Condição', value_name='Número de Partidas')
+        # Renomeamos a coluna 'resultado' para 'Resultado' para o rótulo do gráfico.
+        df_plot.rename(columns={'resultado': 'Resultado'}, inplace=True)
+        # ***** FIM DA CORREÇÃO *****
 
         fig_comparativo = px.bar(df_plot, x='Resultado', y='Número de Partidas', color='Condição',
                                  barmode='group', title=f'Desempenho de {time_selecionado}: Casa vs. Fora',
@@ -166,8 +172,6 @@ if df is not None:
     st.markdown("---")
     st.header("🔍 Análises de Performance no Jogo")
 
-
-
     def plotar_pizza(df_plot, title):
         if not df_plot.empty:
             fig = px.pie(
@@ -190,7 +194,6 @@ if df is not None:
                 df_temp.dropna(subset=colunas_para_validar, inplace=True)
 
             if not df_temp.empty:
-                # Determina o time com a melhor estatística para a condição
                 cond_mandante = condicao_vitoria(df_temp, 'mandante')
                 cond_visitante = condicao_vitoria(df_temp, 'visitante')
                 df_temp['time_analisado'] = np.select([cond_mandante, cond_visitante], [df_temp['mandante'], df_temp['visitante']], default=None)
@@ -207,7 +210,6 @@ if df is not None:
             else:
                 st.warning(f"Não há dados após a limpeza para o gráfico: {titulo}")
 
-    # Definição das condições para cada análise
     cond_maior_posse = lambda df, time: df[f'{time}_posse_de_bola'] > df[f'{"visitante" if time == "mandante" else "mandante"}_posse_de_bola']
     cond_mais_chutes = lambda df, time: df[f'{time}_chutes'] > df[f'{"visitante" if time == "mandante" else "mandante"}_chutes']
     cond_mais_chutes_alvo = lambda df, time: df[f'{time}_chutes_no_alvo'] > df[f'{"visitante" if time == "mandante" else "mandante"}_chutes_no_alvo']
@@ -215,7 +217,6 @@ if df is not None:
 
     col1, col2 = st.columns(2)
 
-    # Chamada das funções de plotagem com validação de dados específica
     gerar_resumo_e_plotar(df_filtrado, cond_maior_posse, "Resultado p/ Time com Mais Posse de Bola", col1, colunas_para_validar=['mandante_posse_de_bola', 'visitante_posse_de_bola'])
     gerar_resumo_e_plotar(df_filtrado, cond_mais_chutes_alvo, "Resultado p/ Time com Mais Chutes no Alvo", col1)
     gerar_resumo_e_plotar(df_filtrado, cond_mais_chutes, "Resultado p/ Time com Mais Chutes Totais", col2)
