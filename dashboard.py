@@ -3,21 +3,20 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
+# --- CONFIGURAÇÃO DA PÁGINA ------------------------------------------------
 st.set_page_config(
     page_title="Análise do Brasileirão",
     page_icon="⚽",
     layout="wide"
 )
 
-# --- CORES PADRÃO PARA RESULTADO -------------------------------------------
+# --- CONSTANTES GLOBAIS ----------------------------------------------------
 COLOR_RESULTADO = {
-    'Vitória': 'green',   # verde
-    'Derrota': 'red',     # vermelho
-    'Empate':  'yellow'   # amarelo
+    'Vitória': 'green',
+    'Derrota': 'red',
+    'Empate': 'yellow'
 }
 
-
-# --- DICIONÁRIO DE ESCUDOS DOS TIMES ---------------------------------------
 ESCUDOS_TIMES = {
     'Athletico-PR': 'https://logodetimes.com/times/atletico-paranaense/logo-atletico-paranaense-512.png',
     'Atletico-GO': 'https://logodetimes.com/times/atletico-goianiense/logo-atletico-goianiense-com-estrela-512.png',
@@ -43,6 +42,7 @@ ESCUDOS_TIMES = {
     'Default': 'https://logospng.org/download/brasileirao-serie-a/logo-brasileirao-512.png'
 }
 
+# --- FUNÇÕES DE PROCESSAMENTO DE DADOS -------------------------------------
 @st.cache_data
 def carregar_dados():
     """
@@ -51,13 +51,10 @@ def carregar_dados():
     """
     try:
         df = pd.read_csv('Brasileirao_Dataset/partidas_com_estatisticas_completas.csv')
-        # Limpeza inicial dos nomes das colunas
         df.columns = df.columns.str.lower().str.strip()
-        # Limpeza de espaços em branco nas colunas de nomes de times
         for col in ['vencedor', 'mandante', 'visitante']:
             df[col] = df[col].str.strip()
         
-        # Cria uma coluna para o resultado da partida da perspectiva do mandante
         conditions = [
             df['vencedor'] == df['mandante'],
             df['vencedor'] == '-'
@@ -72,7 +69,7 @@ def carregar_dados():
 def get_resultado_perspectiva(row, time_analisado):
     """
     Determina o resultado de uma partida (Vitória, Empate, Derrota) 
-    da perspectiva de um time específico, seja ele mandante ou visitante.
+    da perspectiva de um time específico.
     """
     if row['mandante'] == time_analisado:
         return row['resultado_mandante']
@@ -82,6 +79,7 @@ def get_resultado_perspectiva(row, time_analisado):
         return 'Empate'
     return None
 
+# --- CARREGAMENTO INICIAL DOS DADOS ---
 df = carregar_dados()
 
 if df is not None:
@@ -97,19 +95,18 @@ if df is not None:
         placeholder="Análise Geral de todos os times"
     )
 
+    # --- LÓGICA DE EXIBIÇÃO DA PÁGINA ---
     if time_selecionado:
-        # --- LÓGICA PARA ANÁLISE DE TIME ESPECÍFICO ---
+        # --- MODO DE VISÃO: TIME ESPECÍFICO ---
         df_filtrado = df[(df['mandante'] == time_selecionado) | (df['visitante'] == time_selecionado)].copy()
         df_filtrado['resultado'] = df_filtrado.apply(get_resultado_perspectiva, args=(time_selecionado,), axis=1)
         
-        # --- LAYOUT PARA TIME SELECIONADO ---
         col1, col2 = st.columns([1, 4])
         with col1:
             st.image(ESCUDOS_TIMES.get(time_selecionado, ESCUDOS_TIMES['Default']), width=120)
         with col2:
             st.title(f"Análise de Performance: {time_selecionado}")
         
-        # Métricas de resumo do time
         resumo_time = df_filtrado['resultado'].value_counts()
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Partidas Jogadas", int(resumo_time.sum()))
@@ -117,7 +114,6 @@ if df is not None:
         c3.metric("Empates", resumo_time.get('Empate', 0))
         c4.metric("Derrotas", resumo_time.get('Derrota', 0))
 
-        # --- SEÇÃO CORRIGIDA: ANÁLISE MANDANTE VS VISITANTE ---
         st.markdown("---")
         st.header("🏟️ Análise como Mandante vs. Visitante")
 
@@ -129,12 +125,8 @@ if df is not None:
             'Fora': resultados_fora
         }).fillna(0).astype(int).reindex(['Vitória', 'Empate', 'Derrota'])
         
-        # CORREÇÃO APLICADA AQUI:
-        # Quando .reset_index() é chamado, ele cria uma coluna com o nome do índice anterior.
-        # O nome do índice de um value_counts() é o nome da coluna original, 'resultado'.
-        # Portanto, o id_vars correto para o melt é 'resultado'.
-        df_plot = df_comparativo.reset_index().melt(id_vars='resultado', var_name='Condição', value_name='Número de Partidas')
-        df_plot.rename(columns={'resultado': 'Resultado'}, inplace=True)
+        df_plot = df_comparativo.reset_index().melt(id_vars='index', var_name='Condição', value_name='Número de Partidas')
+        df_plot.rename(columns={'index': 'Resultado'}, inplace=True)
 
         fig_comparativo = px.bar(df_plot, x='Resultado', y='Número de Partidas', color='Condição',
                                  barmode='group', title=f'Desempenho de {time_selecionado}: Casa vs. Fora',
@@ -145,7 +137,7 @@ if df is not None:
         st.plotly_chart(fig_comparativo, use_container_width=True)
 
     else:
-        # --- LÓGICA PARA VISÃO GERAL DO CAMPEONATO ---
+        # --- MODO DE VISÃO: GERAL DO CAMPEONATO ---
         df_filtrado = df.copy()
         df_filtrado['resultado'] = df_filtrado['resultado_mandante']
 
@@ -174,56 +166,60 @@ if df is not None:
     st.markdown("---")
     st.header("🔍 Análises de Performance no Jogo")
 
-    # Preparação dos dados para análise de estatísticas de jogo
-    df_analise = df_filtrado.copy()
-    for col in ['mandante_posse_de_bola', 'visitante_posse_de_bola']:
-        df_analise[col] = pd.to_numeric(df_analise[col].astype(str).str.replace('%', ''), errors='coerce')
-    df_analise.dropna(subset=['mandante_posse_de_bola', 'visitante_posse_de_bola'], inplace=True)
 
-    # Criação de colunas para identificar o time com melhores estatísticas em cada partida
-    df_analise['maior_posse'] = np.where(df_analise['mandante_posse_de_bola'] > df_analise['visitante_posse_de_bola'], df_analise['mandante'], df_analise['visitante'])
-    df_analise['mais_chutes'] = np.where(df_analise['mandante_chutes'] > df_analise['visitante_chutes'], df_analise['mandante'], df_analise['visitante'])
-    df_analise['mais_chutes_alvo'] = np.where(df_analise['mandante_chutes_no_alvo'] > df_analise['visitante_chutes_no_alvo'], df_analise['mandante'], df_analise['visitante'])
-    
-    # Identifica times que jogaram em estratégia de contra-ataque
-    cond_ca_mandante = (df_analise['mandante_posse_de_bola'] < df_analise['visitante_posse_de_bola']) & (df_analise['mandante_chutes'] > df_analise['visitante_chutes'])
-    cond_ca_visitante = (df_analise['visitante_posse_de_bola'] < df_analise['mandante_posse_de_bola']) & (df_analise['visitante_chutes'] > df_analise['mandante_chutes'])
-    df_analise['time_contra_ataque'] = np.select([cond_ca_mandante, cond_ca_visitante], [df_analise['mandante'], df_analise['visitante']], default=None)
 
     def plotar_pizza(df_plot, title):
         if not df_plot.empty:
             fig = px.pie(
-                df_plot,
-                names='resultado',
-                values='percentual',
-                title=title,
-                hole=.3,
-                color='resultado',            # usa o rótulo como chave
-                color_discrete_map=COLOR_RESULTADO
+                df_plot, names='resultado', values='percentual', title=title, hole=.3,
+                color='resultado', color_discrete_map=COLOR_RESULTADO
             )
             fig.update_traces(textposition='inside', textinfo='percent+label')
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.warning(f"Não há dados suficientes para o gráfico: {title}")
 
-    
-    # Função para gerar e plotar os dados para cada gráfico de pizza
-    def gerar_resumo_e_plotar(df_base, coluna_time, titulo, coluna_plot):
+    def gerar_resumo_e_plotar(df_base, condicao_vitoria, titulo, coluna_plot, colunas_para_validar=[]):
         with coluna_plot:
-            df_temp = df_base[df_base[coluna_time].notna()].copy()
+            df_temp = df_base.copy()
+
+            if colunas_para_validar:
+                for col in colunas_para_validar:
+                    if df_temp[col].dtype == 'object':
+                        df_temp[col] = pd.to_numeric(df_temp[col].str.replace('%', ''), errors='coerce')
+                df_temp.dropna(subset=colunas_para_validar, inplace=True)
+
             if not df_temp.empty:
-                df_temp['resultado_final'] = df_temp.apply(lambda row: get_resultado_perspectiva(row, row[coluna_time]), axis=1)
-                resumo = df_temp['resultado_final'].value_counts(normalize=True).mul(100).reset_index()
-                resumo.columns = ['resultado', 'percentual']
-                plotar_pizza(resumo, titulo)
+                # Determina o time com a melhor estatística para a condição
+                cond_mandante = condicao_vitoria(df_temp, 'mandante')
+                cond_visitante = condicao_vitoria(df_temp, 'visitante')
+                df_temp['time_analisado'] = np.select([cond_mandante, cond_visitante], [df_temp['mandante'], df_temp['visitante']], default=None)
+                
+                df_final = df_temp.dropna(subset=['time_analisado']).copy()
+
+                if not df_final.empty:
+                    df_final['resultado_final'] = df_final.apply(lambda row: get_resultado_perspectiva(row, row['time_analisado']), axis=1)
+                    resumo = df_final['resultado_final'].value_counts(normalize=True).mul(100).reset_index()
+                    resumo.columns = ['resultado', 'percentual']
+                    plotar_pizza(resumo, titulo)
+                else:
+                    st.warning(f"Não há dados para a condição do gráfico: {titulo}")
             else:
-                st.warning(f"Não há dados suficientes para o gráfico: {titulo}")
+                st.warning(f"Não há dados após a limpeza para o gráfico: {titulo}")
+
+    # Definição das condições para cada análise
+    cond_maior_posse = lambda df, time: df[f'{time}_posse_de_bola'] > df[f'{"visitante" if time == "mandante" else "mandante"}_posse_de_bola']
+    cond_mais_chutes = lambda df, time: df[f'{time}_chutes'] > df[f'{"visitante" if time == "mandante" else "mandante"}_chutes']
+    cond_mais_chutes_alvo = lambda df, time: df[f'{time}_chutes_no_alvo'] > df[f'{"visitante" if time == "mandante" else "mandante"}_chutes_no_alvo']
+    cond_contra_ataque = lambda df, time: (df[f'{time}_posse_de_bola'] < df[f'{"visitante" if time == "mandante" else "mandante"}_posse_de_bola']) & (df[f'{time}_chutes'] > df[f'{"visitante" if time == "mandante" else "mandante"}_chutes'])
 
     col1, col2 = st.columns(2)
-    gerar_resumo_e_plotar(df_analise, 'maior_posse', "Resultado p/ Time com Mais Posse de Bola", col1)
-    gerar_resumo_e_plotar(df_analise, 'mais_chutes_alvo', "Resultado p/ Time com Mais Chutes no Alvo", col1)
-    gerar_resumo_e_plotar(df_analise, 'mais_chutes', "Resultado p/ Time com Mais Chutes Totais", col2)
-    gerar_resumo_e_plotar(df_analise, 'time_contra_ataque', "Eficácia da Estratégia de Contra-Ataque", col2)
+
+    # Chamada das funções de plotagem com validação de dados específica
+    gerar_resumo_e_plotar(df_filtrado, cond_maior_posse, "Resultado p/ Time com Mais Posse de Bola", col1, colunas_para_validar=['mandante_posse_de_bola', 'visitante_posse_de_bola'])
+    gerar_resumo_e_plotar(df_filtrado, cond_mais_chutes_alvo, "Resultado p/ Time com Mais Chutes no Alvo", col1)
+    gerar_resumo_e_plotar(df_filtrado, cond_mais_chutes, "Resultado p/ Time com Mais Chutes Totais", col2)
+    gerar_resumo_e_plotar(df_filtrado, cond_contra_ataque, "Eficácia da Estratégia de Contra-Ataque", col2, colunas_para_validar=['mandante_posse_de_bola', 'visitante_posse_de_bola', 'mandante_chutes', 'visitante_chutes'])
 
     # --- TABELA DE DADOS DETALHADOS ---
     st.markdown("---")
