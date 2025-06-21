@@ -18,11 +18,20 @@ COLOR_RESULTADO = {
 }
 
 ESCUDOS_TIMES = {
+
+    'Vitoria': 'https://logodetimes.com/times/vitoria/logo-vitoria-512.png',
+    'Parana': 'https://logodetimes.com/times/parana/logo-parana-512.png',
+    'Juventude': 'https://logodetimes.com/times/juventude/logo-juventude-512.png',
+    'Cruzeiro': 'https://logodetimes.com/times/cruzeiro/logo-cruzeiro-512.png',
+    'Chapecoense': 'https://logodetimes.com/times/chapecoense/logo-chapecoense-512.png',
+    'CSA': 'https://logodetimes.com/times/csa/logo-csa-512.png',
+    'Avai': 'https://logodetimes.com/times/avai/logo-avai-512.png',
+    'America-MG': 'https://logodetimes.com/times/america-mineiro/logo-america-mineiro-512.png',
     'Athletico-PR': 'https://logodetimes.com/times/atletico-paranaense/logo-atletico-paranaense-512.png',
     'Atletico-GO': 'https://logodetimes.com/times/atletico-goianiense/logo-atletico-goianiense-com-estrela-512.png',
     'Atletico-MG': 'https://logodetimes.com/times/atletico-mineiro/logo-atletico-mineiro-512.png',
     'Bahia': 'https://logodetimes.com/times/bahia/logo-bahia-512.png',
-    'Botafogo': 'https://logodetimes.com/times/botafogo/logo-botafogo-512.png',
+    'Botafogo-RJ': 'https://logodetimes.com/times/botafogo/logo-botafogo-512.png',
     'Bragantino': 'https://logodetimes.com/times/red-bull-bragantino/logo-red-bull-bragantino-512.png',
     'Ceara': 'https://logodetimes.com/times/ceara/logo-ceara-512.png',
     'Corinthians': 'https://logodetimes.com/times/corinthians/logo-corinthians-512.png',
@@ -31,14 +40,14 @@ ESCUDOS_TIMES = {
     'Flamengo': 'https://logodetimes.com/times/flamengo/logo-flamengo-512.png',
     'Fluminense': 'https://logodetimes.com/times/fluminense/logo-fluminense-512.png',
     'Fortaleza': 'https://logodetimes.com/times/fortaleza/logo-fortaleza-512.png',
-    'Goias': 'https://logodetimes.com/times/goias/logo-goias-512.png',
+    'Goias': 'https://logodetimes.com/times/goias/logo-goias-esporte-clube-512.png',
     'Gremio': 'https://logodetimes.com/times/gremio/logo-gremio-512.png',
     'Internacional': 'https://logodetimes.com/times/internacional/logo-internacional-512.png',
     'Palmeiras': 'https://logodetimes.com/times/palmeiras/logo-palmeiras-512.png',
     'Santos': 'https://logodetimes.com/times/santos/logo-santos-512.png',
     'Sao Paulo': 'https://logodetimes.com/times/sao-paulo/logo-sao-paulo-512.png',
-    'Sport': 'https://logodetimes.com/times/sport/logo-sport-512.png',
-    'Vasco': 'https://logodetimes.com/times/vasco/logo-vasco-512.png',
+    'Sport': 'https://logodetimes.com/times/sport-recife/logo-sport-recife-512.png',
+    'Vasco': 'https://logodetimes.com/times/vasco-da-gama/logo-vasco-da-gama-512.png',
     'Default': 'https://logospng.org/download/brasileirao-serie-a/logo-brasileirao-512.png'
 }
 
