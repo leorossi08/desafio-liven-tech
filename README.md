@@ -87,6 +87,22 @@ streamlit run dashboard.py
 
 > ⚠️ **Pré‑requisitos**: Python 3.8 ou superior e os arquivos CSV dentro de `Brasileirao_Dataset/`.
 
+Analise Geral do Campeonado pelo Dashboard com ranking:
+
+![image](https://github.com/user-attachments/assets/27a2f594-804f-46f7-801e-fc30ccb5b285)
+
+
+Performance Geral do Campeonato Brasileiro:
+
+![image](https://github.com/user-attachments/assets/ea63a814-336b-46c2-b89b-947f28c014fd)
+
+Filtre pelo seu time:
+
+![image](https://github.com/user-attachments/assets/735e5802-3bb7-4cd8-bce8-6682dcc53381)
+
+
+
+
 ---
 
 ## Próximos Passos 🔮
